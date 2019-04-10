@@ -1,7 +1,7 @@
 const switcher = document.querySelector('#cbx'),
       more = document.querySelector('.more'),
       modal = document.querySelector('.modal'),
-      videos = document.querySelectorAll('.video__items');
+      videos = document.querySelectorAll('.videos__item');
 let player;
 
 function bindSlideToggle(trigger, boxBody, content, openClass) {
@@ -65,7 +65,6 @@ function switchMode() {
     }
 };
 
-
 let night = false;
 
 function checkSwitchMode() {
@@ -124,6 +123,80 @@ more.addEventListener('click', () => {
         setTimeout( () => {
             card.classList.remove('videos__item-active');
         }, 10);
+        bindNewModal(card);
     }
-    checkSwitchMode()
+    checkSwitchMode();
+    sliceTitle('.videos__item-descr', 100);
 });
+
+function sliceTitle(selector, count) {
+    document.querySelectorAll(selector).forEach(item => {
+        if(item.textContent.length < count) {
+            return;
+        } else {
+            const str = item.textContent.slice(0, count + 1) + '...';
+            item.textContent = str;
+        }
+    });
+}
+sliceTitle('.videos__item-descr', 100);
+
+
+function openModal() {
+    modal.style.display = "block";
+}
+function closeModal() {
+    modal.style.display = "none";
+    player.stopVideo();
+}
+
+function bindModal(cards) {
+    cards.forEach( item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const id = item.getAttribute('data-url');
+            loadVideo(id);
+            openModal();
+        });
+    });
+}
+bindModal(videos);
+
+function bindNewModal(cards) {
+    cards.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = cards.getAttribute('data-url');
+        loadVideo(id);
+        openModal();
+    });
+}
+
+modal.addEventListener('click', (e) => {
+    if(!e.target.classList.contains('modal__body')) {
+        closeModal();
+    }
+});
+
+function createVideo() {
+    // 2. This code loads the IFrame Player API code asynchronously.
+    var tag = document.createElement('script');
+
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    setTimeout(() => {
+        
+        player = new YT.Player('frame', {
+            height: '100%',
+            width: '100%',
+            videoId: 'M7lc1UVf-VE'
+        });
+    },300);
+}
+
+createVideo();
+
+function loadVideo(id) {
+    player.loadVideoById({'videoId': `${id}`});
+}
